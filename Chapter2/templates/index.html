@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{title}}-Microblog</title>
-</head>
-<body>
+{%extends "base.html"%}
+
+{%block content%}
     <h1>Hi, {{user.userName}}</h1>
-</body>
-</html>>>
+    {%for post in posts%}
+    <div><p>{{post.author.userName}} says: <b>{{post.body}}</b></p></div>
+    {%endfor%}
+{%endblock%}
