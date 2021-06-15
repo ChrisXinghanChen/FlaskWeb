@@ -1,10 +1,10 @@
 from datetime import datetime
 from flask_login.utils import login_required, logout_user
 from werkzeug.security import check_password_hash
-from app.models import User
+from app.models import User, Post
 from app import app, db
 from flask import render_template, flash, redirect, url_for, request
-from app.form import EditProfileForm, LoginForm, RegistrationForm
+from app.form import EditProfileForm, LoginForm, PostForm, RegistrationForm
 from flask_login import current_user, login_user, login_required
 from werkzeug.urls import url_parse
 
@@ -14,11 +14,18 @@ def berfore_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
+
 @app.route('/')
 @app.route('/index')
 @login_required
 def index():
-    
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(body=form.post.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash('YOur post is now live!')
+        return redirect(url_for('index'))
     posts = [
         {
             'author':{'userName': 'Chris'},
@@ -29,7 +36,7 @@ def index():
             'body':'I love Chris!'
         }
     ]
-    return render_template('index.html', posts=posts)
+    return render_template('index.html', form=form, posts=posts)
 
 
 @app.route('/login', methods=['GET', 'POST'])
